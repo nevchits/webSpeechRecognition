@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech to Text</title>
+    <style>
+                #circle {
+            width: 50px;
+            height: 50px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #circle.glow {
+            background-color: red;
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 15px #ff0000, 0 0 20px #ff0000;
+            }
+            
+            to {
+                box-shadow: 0 0 10px #ff0000, 0 0 20px #ff7f7f, 0 0 30px #ff7f7f, 0 0 40px #ff7f7f;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Speech to Text</h1>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="append">Append</button> <!-- New button -->
+    <textarea id="result" rows="10" cols="50"></textarea>
+    <div id="circle"></div>
+    <div id="paragraph"></div>
+    <div id="secondParagraph"></div> <!-- New paragraph -->
+    <div id="thirdParagraph"></div> <!-- New paragraph -->
+
+    <script>
+        const startButton = document.getElementById('start');
+        const stopButton = document.getElementById('stop');
+        const appendButton = document.getElementById('append'); // New button
+        const resultArea = document.getElementById('result');
+        const circle = document.getElementById('circle');
+        const paragraphDiv = document.getElementById('paragraph');
+        const secondParagraphDiv = document.getElementById('secondParagraph'); // New paragraph
+        const thirdParagraphDiv = document.getElementById('thirdParagraph'); // New paragraph
+
+        let recognition;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                }
+                resultArea.value = transcript;
+                paragraphDiv.textContent = transcript;
+
+                // Check if the transcript contains "add that"
+                if (transcript.includes("add that")) {
+                    thirdParagraphDiv.textContent += resultArea.value; // Append to third paragraph
+                }
+            };
+
+            recognition.onaudiostart = function(event){
+                console.log("Audio start");
+            };
+
+            recognition.onaudioend = function(event){
+                console.log("Audio end");
+            };
+
+            recognition.onsoundstart = function(event){
+                console.log("sound start");
+            };
+
+            recognition.onsoundend = function(event){
+                console.log("sound end");
+            };
+
+            recognition.onspeechstart = function(event){
+                console.log("speech start");
+            };
+
+            recognition.onspeechend = function(event){
+                console.log("speech end");
+            };
+
+
+            startButton.onclick = function() {
+                recognition.start();
+                circle.classList.add('glow');
+            };
+
+            stopButton.onclick = function() {
+                recognition.stop();
+                circle.classList.remove('glow');
+            };
+
+            appendButton.onclick = function() {
+                secondParagraphDiv.textContent += resultArea.value; // Append to second paragraph
+            };
+        } else {
+            resultArea.value = 'Speech recognition not supported in this browser.';
+        }
+    </script>
+</body>
+</html>
